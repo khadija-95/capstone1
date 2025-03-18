@@ -1,23 +1,18 @@
 package com.example.capstone1.Service;
 
 import com.example.capstone1.Model.Product;
-import org.hibernate.validator.internal.util.stereotypes.Lazy;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ProductService {
 
-    private final UserService userService;
 
     ArrayList<Product> products = new ArrayList<>();
-
-    public ProductService(UserService userService) {
-        this.userService = userService;
-    }
 
 
     public ArrayList<Product> getProducts(){
@@ -54,31 +49,38 @@ public class ProductService {
         return false;
     }
 
-    public Product getProductById( String productId) {
-        for (Product product:products){
-            if (product.getId().equals(productId)){
-                return product;
+    public List<Product> getProductsSortedByPrice(String categoryId) {
+        return products.stream()
+                .filter(product -> product.getCategoryID().equals(categoryId))
+                .sorted(Comparator.comparingDouble(Product::getPrice))
+                .collect(Collectors.toList());
+    }
+
+    public String applyDiscount(double discountPercentage, double priceThreshold) {
+        for (Product product : products) {
+            if (product.getPrice() >= priceThreshold) {
+                double newPrice = product.getPrice() - (product.getPrice() * (discountPercentage / 100));
+                product.setPrice(newPrice);
             }
         }
-        return null;
+        return "Discount applied to eligible products!";
     }
 
-    public ArrayList<Product> getCheapestProducts() {
-        ArrayList<Product> products = new ArrayList<>();
-        products.sort(Comparator.comparingDouble(Product::getPrice));
-        return products;
-    }
-
-    public ArrayList<Product> getDiscountedProducts() {
-        ArrayList<Product> discountedProducts = new ArrayList<>();
+    public String compareProductPrices(String productId1, String productId2) {
+        Product product1 = null;
+        Product product2 = null;
 
         for (Product product : products) {
-            if (product.getDiscount() > 0) {
-                discountedProducts.add(product);
-            }
+            if (product.getId().equals(productId1)) product1 = product;
+            if (product.getId().equals(productId2)) product2 = product;
         }
 
-        return discountedProducts;
+        if (product1 == null || product2 == null) return "One or both products not found!";
+
+        return "Product 1: " + product1.getName() + " (" + product1.getCategoryID() + ") - $" + product1.getPrice() + "\n" +
+                "Product 2: " + product2.getName() + " (" + product2.getCategoryID() + ") - $" + product2.getPrice();
     }
+
+
 
 }

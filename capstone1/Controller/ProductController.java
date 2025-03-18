@@ -18,6 +18,7 @@ public class ProductController {
 
     private final ProductService productService;
 
+    @GetMapping("/get")
     public ResponseEntity getProducts(){
         ArrayList<Product>products=productService.getProducts();
         return ResponseEntity.status(200).body(products);
@@ -60,26 +61,21 @@ public class ProductController {
         }
         return ResponseEntity.status(400).body(new ApiResponse("not found"));
     }
-
-
-    // Endpoint to compare prices of a specific product across different merchants
-    @GetMapping("/cheapest")
-    public ResponseEntity getCheapestProducts() {
-        ArrayList<Product> cheapestProducts = productService.getCheapestProducts();
-        if (cheapestProducts.isEmpty()) {
-            return ResponseEntity.status(400).body(new ApiResponse("No products found"));
-        }
-        return ResponseEntity.status(200).body(cheapestProducts);
+    // Get all products sorted by price within a specific category
+    @GetMapping("/sorted")
+    public ResponseEntity getSortedProducts(@RequestParam String categoryId) {
+        return ResponseEntity.ok(productService.getProductsSortedByPrice(categoryId));
     }
-
-    // Endpoint to get a list of products with low stock levels
-    @GetMapping("/onSale")
-    public ResponseEntity getDiscountedProducts() {
-        ArrayList<Product> discountedProducts = productService.getDiscountedProducts();
-
-        if (discountedProducts.isEmpty()) {
-            return ResponseEntity.status(400).body(new ApiResponse("No discounted products found"));
-        }
-        return ResponseEntity.status(200).body(discountedProducts);
+    // Apply a discount to products that meet a price threshold
+    @PostMapping("/discount")
+    public ResponseEntity<ApiResponse> applyDiscount(@RequestParam double discountPercentage, @RequestParam double priceThreshold) {
+        String response = productService.applyDiscount(discountPercentage, priceThreshold);
+        return ResponseEntity.ok(new ApiResponse(response));
+    }
+    // Compare the prices of two different products
+    @GetMapping("/compare")
+    public ResponseEntity<ApiResponse> compareProducts(@RequestParam String productId1, @RequestParam String productId2) {
+        String response = productService.compareProductPrices(productId1, productId2);
+        return ResponseEntity.ok(new ApiResponse(response));
     }
 }

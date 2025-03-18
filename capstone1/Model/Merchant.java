@@ -8,10 +8,10 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class Merchant {
-    @NotEmpty(message = "ID should be not empty")
+    @NotEmpty(message = "ID must not be empty")
     private String id;
-    @NotEmpty(message = "Name should be not empty")
-    @Size(min = 4)
-    private String name;
 
+    @NotEmpty(message = "Name must not be empty")
+    @Size(min = 3, message = "Name must be at least 3 characters long")
+    private String name;
 }

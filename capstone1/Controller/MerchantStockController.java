@@ -10,6 +10,7 @@ import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/merchantStock")
@@ -59,38 +60,27 @@ public class MerchantStockController {
         return ResponseEntity.status(400).body(new ApiResponse("not found"));
     }
 
-    @PutMapping("/addStock")
-    public ResponseEntity addStock(@RequestBody String productId,@RequestBody String merchantId,@RequestBody Integer additionalStock) {
-        merchantStockService.addStock(productId, merchantId, additionalStock);
-        return ResponseEntity.status(200).body(new ApiResponse("Stock updated successfully!"));
+    @PostMapping("/addStock")
+
+    public ResponseEntity addStock(
+
+            @RequestParam String productId,
+
+            @RequestParam String merchantId,
+
+            @RequestParam int additionalStock) {
+
+
+
+        String response = merchantStockService.addStock(productId, merchantId, additionalStock);
+
+        return ResponseEntity.ok(new ApiResponse(response));
+
     }
-
-    @PostMapping("/buy")
-
-    public ResponseEntity buyProduct(@RequestBody String userId,@RequestBody String productId,@RequestBody String merchantId) {
-
-        String result = merchantStockService.buyProduct(userId, productId, merchantId);
-        if (result.isEmpty()){
-            return ResponseEntity.status(400).body(new ApiResponse("There is no product"));
-        }
-        return ResponseEntity.status(200).body(result);
-    }
-    //Compare the price of a specific product across different merchants
-    @GetMapping("/compare/{productId}")
-    public ResponseEntity comparePrice(@PathVariable String productId){
-        ArrayList<MerchantStock> merchantStocks=merchantStockService.comparePrice(productId);
-        if (merchantStocks.isEmpty()){
-            return ResponseEntity.status(400).body(new ApiResponse("there is no product"));
-        }
-        return ResponseEntity.status(200).body(merchantStocks);
-    }
-
-    //Endpoint to retrieve a list of products that are low in stock
-    @GetMapping("/lowStock")
-    public ResponseEntity getLowStockAlert() {
-        ArrayList<MerchantStock>m =merchantStockService.getLowStockAlert();
-
-        return ResponseEntity.status(200).body(m);
+    // Check if any product stock is running low (below the given threshold)
+    @GetMapping("/alert")
+    public ResponseEntity checkLowStock(@RequestParam int threshold) {
+        return ResponseEntity.ok(merchantStockService.checkLowStock(threshold));
     }
 
 }

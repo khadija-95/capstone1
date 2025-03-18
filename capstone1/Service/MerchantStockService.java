@@ -9,17 +9,21 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 
 @Service
 public class MerchantStockService {
 
     private final UserService userService;
     private final ProductService productService;
+    private final MerchantService merchantService;
+
     ArrayList<MerchantStock>merchantStocks=new ArrayList<>();
 
-    public MerchantStockService(UserService userService, ProductService productService) {
+    public MerchantStockService(UserService userService, ProductService productService,MerchantService merchantService) {
         this.userService = userService;
         this.productService = productService;
+        this.merchantService= merchantService;
     }
 
     public ArrayList<MerchantStock> getMerchantStocks(){
@@ -56,20 +60,10 @@ public class MerchantStockService {
         return false;
     }
 
-    public String addStock(String productId, String merchantId, Integer additionalStock) {
-        for (MerchantStock stock : merchantStocks) {
-            if (stock.getProductId().equals(productId) && stock.getMerchantId().equals(merchantId)) {
-                stock.setStock(stock.getStock() + additionalStock);
-                return "Stock updated successfully!";
-            }
-        }
-        return "Stock record not found. No changes were made.";
-    }
-
-    public String buyProduct(String userId, String productId, String merchantId){
+    public String buyProduct(String userId, String productId, String merchantId) {
         User user = null;
         Product product = null;
-        MerchantStock stock = null;
+        MerchantStock stockItem = null;
 
         for (User u : userService.getUsers()) {
             if (u.getId().equals(userId)) {
@@ -77,9 +71,7 @@ public class MerchantStockService {
                 break;
             }
         }
-        if (user == null) {
-            return "User not found.";
-        }
+        if (user == null) return " User not found!";
 
         for (Product p : productService.getProducts()) {
             if (p.getId().equals(productId)) {
@@ -87,52 +79,53 @@ public class MerchantStockService {
                 break;
             }
         }
-        if (product == null) {
-            return "Product not found.";
-        }
-
-        for (MerchantStock ms : merchantStocks) {
-            if (ms.getProductId().equals(productId) && ms.getMerchantId().equals(merchantId)) {
-                stock = ms;
-                break;
-            }
-        }
-        if (stock == null || stock.getStock() <= 0) {
-            return "Merchant does not have this product in stock.";
-        }
-
-        if (user.getBalance() < product.getPrice()) {
-            return "Insufficient balance.";
-        }
-
-        stock.setStock(stock.getStock() - 1);
-        user.setBalance(user.getBalance() - product.getPrice());
-
-        return "Purchase successful! Product: " + product.getName();
-    }
-
-    public ArrayList<MerchantStock> comparePrice(String productId){
-        ArrayList<MerchantStock> stocks=new ArrayList<>();
-        for (MerchantStock stock:merchantStocks){
-            if (stock.getProductId().equals(productId)&&stock.getStock()>0){
-                stocks.add(stock);
-            }
-        }
-        stocks.sort(Comparator.comparing(stock -> productService.getProductById(stock.getProductId()).getPrice()));
-
-        return stocks;
-    }
-
-    public ArrayList<MerchantStock> getLowStockAlert() {
-        ArrayList<MerchantStock> lowStock = new ArrayList<>();
+        if (product == null) return " Product not found!";
 
         for (MerchantStock stock : merchantStocks) {
-            if (stock.getStock() < 5) {
-                lowStock.add(stock);
+            if (stock.getProductid().equals(productId)&& stock.getMerchantid().equals(merchantId)){
+               stockItem = stock;
+               break;
             }
         }
+        if (stockItem == null) return "Merchant does not have this product in stock!";
+        if (stockItem.getStock() < 1) return "Out of stock!";
+        if (user.getBalance() < product.getPrice()) return "Insufficient balance!";
 
-        return lowStock;
+        stockItem.setStock(stockItem.getStock() - 1);
+        user.setBalance(user.getBalance() - product.getPrice());
+
+        user.setTotalSpent(user.getTotalSpent() + product.getPrice());
+        user.setPurchaseCount(user.getPurchaseCount() + 1);
+
+        return "Purchase successful! New balance: $" + user.getBalance();
+    }
+
+    public String addStock(String productId, String merchantId, int additionalStock) {
+
+        for (MerchantStock stock : merchantStocks) {
+
+            if (productId.equals(stock.getProductid())&& merchantId.equals(stock.getMerchantid())) {
+
+                stock.setStock(stock.getStock() + additionalStock);
+
+                return "Stock updated successfully! New stock: " + stock.getStock();
+
+            }
+
+        }
+
+        return "Product or Merchant not found!";
+
+    }
+
+    public List<String> checkLowStock(int threshold) {
+        List<String> lowStockAlerts = new ArrayList<>();
+        for (MerchantStock stock : merchantStocks) {
+            if (stock.getStock() <= threshold) {
+                lowStockAlerts.add("Product ID: " + stock.getProductid() + " in Merchant ID: " + stock.getMerchantid() + " is running low (Stock: " + stock.getStock() + ")");
+            }
+        }
+        return lowStockAlerts;
     }
 
 }

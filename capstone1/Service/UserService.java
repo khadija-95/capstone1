@@ -9,12 +9,8 @@ import java.util.ArrayList;
 @Service
 public class UserService {
 
-    private final ProductService productService;
     ArrayList<User> users = new ArrayList<>();
 
-    public UserService(ProductService productService) {
-        this.productService = productService;
-    }
 
     public ArrayList<User> getUsers(){
         return users ;
@@ -49,21 +45,15 @@ public class UserService {
         }
         return false;
     }
-
-    public String getUserPurchaseStats(String userId) {
-        User user =getUserByID(userId);
-        if (user==null){
-            return "User not found";
-        }
-        return "Total Purchases: " + user.getTotalPurchaseCount() + ", Total Spent: $" + user.getTotalSpent();
-     }
-    public User getUserByID(String userId){
-        for (User user:users){
-            if (user.getId().equals(userId)){
-                return user;
+    public String getUserStatistics(String userId) {
+        for (User user : users) {
+            if (user.getId().equals(userId)) {
+                return "User " + user.getUsername() +
+                        " has made " + user.getPurchaseCount() +
+                        " purchases and spent a total of $" + user.getTotalSpent();
             }
         }
-        return null;
+        return "User not found!";
     }
 
 }

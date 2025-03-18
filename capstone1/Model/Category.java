@@ -8,9 +8,10 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class Category {
-    @NotEmpty(message = "ID should be not empty")
+    @NotEmpty(message = "ID must not be empty")
     private String id;
-    @NotEmpty(message = "Name should be not empty")
-    @Size(min = 4)
+
+    @NotEmpty(message = "Name must not be empty")
+    @Size(min = 3, message = "Name must be at least 3 characters long")
     private String name;
 }

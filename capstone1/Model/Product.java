@@ -7,20 +7,18 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class Product {
-    @NotEmpty(message = "ID should be not empty")
+    @NotEmpty(message = "ID must not be empty")
     private String id;
-    @NotEmpty(message = "Name should be not empty")
-    @Size(min = 4)
+
+    @NotEmpty(message = "Name must not be empty")
+    @Min(value = 3, message = "Name must be at least 3 characters long")
     private String name;
-    @NotNull(message = "Price should be not null")
-    @Positive
+
+    @Min(value = 1, message = "Price must be positive")
     private double price;
-    @NotEmpty(message = "Category ID should be not empty")
+
+    @NotEmpty(message = "Category ID must not be empty")
     private String categoryID;
-
-    @NotNull(message = "discount should be not empty")
-    @Max(50)
-    private double discount;
-
-
 }
+
+
