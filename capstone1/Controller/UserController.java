@@ -1,6 +1,7 @@
 package com.example.capstone1.Controller;
 
 import com.example.capstone1.Api.ApiResponse;
+import com.example.capstone1.Model.Product;
 import com.example.capstone1.Model.User;
 import com.example.capstone1.Service.MerchantStockService;
 import com.example.capstone1.Service.UserService;
@@ -75,6 +76,15 @@ public class UserController {
         String responseMessage = merchantStockService.buyProduct(userId, productId, merchantId);
         return ResponseEntity.ok(new ApiResponse(responseMessage));
 
+    }
+
+    @GetMapping("/get/{role}")
+    public ResponseEntity getUserByRole(@PathVariable String role) {
+        User user = userService.getUserByRole(role);
+        if (user == null) {
+            return ResponseEntity.status(400).body(new ApiResponse("User not found"));
+        }
+        return ResponseEntity.status(200).body(user);
     }
     //Retrieve user purchase statistics (number of purchases and total money spent)
     @GetMapping("/stats")

@@ -2,6 +2,7 @@ package com.example.capstone1.Controller;
 
 import com.example.capstone1.Api.ApiResponse;
 import com.example.capstone1.Model.Category;
+import com.example.capstone1.Model.Product;
 import com.example.capstone1.Service.CategoryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -60,6 +61,14 @@ public class CategoryController {
             return ResponseEntity.status(200).body(new ApiResponse("updated"));
         }
         return ResponseEntity.status(400).body(new ApiResponse("not found"));
+    }
+    @GetMapping("/get/{id}")
+    public ResponseEntity getCategoryById(@PathVariable String id) {
+        Category category = categoryService.getCategoryById(id);
+        if (category == null) {
+            return ResponseEntity.status(400).body(new ApiResponse("Category not found"));
+        }
+        return ResponseEntity.status(200).body(category);
     }
 
 

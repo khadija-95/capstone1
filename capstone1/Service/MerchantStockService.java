@@ -1,5 +1,6 @@
 package com.example.capstone1.Service;
 
+import com.example.capstone1.Model.Merchant;
 import com.example.capstone1.Model.MerchantStock;
 import com.example.capstone1.Model.Product;
 import com.example.capstone1.Model.User;
@@ -31,11 +32,24 @@ public class MerchantStockService {
     }
 
     public boolean addMerchantStock (MerchantStock m){
-        for(int i =0;i<merchantStocks.size();i++){
-            if(merchantStocks.get(i).getId().equals(m.getId())){
+        Product product = productService.getProductById(m.getProductid());
+        Merchant merchant= merchantService.getMerchantById(m.getMerchantid());
+        if (product==null || merchant == null){
+            return false;
+        }
+
+        for (MerchantStock existingStock : merchantStocks) {
+            if (existingStock.getId().equals(m.getId())) {
                 return false;
             }
         }
+
+        for (MerchantStock existingStock : merchantStocks) {
+            if (existingStock.getProductid().equals(m.getProductid())) {
+                return false;
+            }
+        }
+
         merchantStocks.add(m);
         return true;
     }

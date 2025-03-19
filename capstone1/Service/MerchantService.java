@@ -1,6 +1,7 @@
 package com.example.capstone1.Service;
 
 import com.example.capstone1.Model.Merchant;
+import com.example.capstone1.Model.Product;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -40,6 +41,15 @@ public class MerchantService {
             }
         }
         return false;
+    }
+
+    public Merchant getMerchantById(String id) {
+        for (Merchant merchant : merchants) {
+            if (merchant.getId().equals(id)) {
+                return merchant;
+            }
+        }
+        return null;
     }
 
 }

@@ -2,6 +2,7 @@ package com.example.capstone1.Controller;
 
 import com.example.capstone1.Api.ApiResponse;
 import com.example.capstone1.Model.Merchant;
+import com.example.capstone1.Model.Product;
 import com.example.capstone1.Service.MerchantService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -58,6 +59,15 @@ public class MerchantController {
             return ResponseEntity.status(200).body(new ApiResponse("deleted"));
         }
         return ResponseEntity.status(400).body(new ApiResponse("not found"));
+    }
+
+    @GetMapping("/get/{id}")
+    public ResponseEntity getMerchantById(@PathVariable String id) {
+        Merchant merchant = merchantService.getMerchantById(id);
+        if (merchant == null) {
+            return ResponseEntity.status(400).body(new ApiResponse("Merchant not found"));
+        }
+        return ResponseEntity.status(200).body(merchant);
     }
 
 }

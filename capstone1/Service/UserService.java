@@ -1,5 +1,6 @@
 package com.example.capstone1.Service;
 
+import com.example.capstone1.Model.Product;
 import com.example.capstone1.Model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -56,4 +57,12 @@ public class UserService {
         return "User not found!";
     }
 
+    public User getUserByRole(String role) {
+        for (User user : users) {
+            if (user.getId().equals(role)) {
+                return user;
+            }
+        }
+        return null;
+    }
 }
